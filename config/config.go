@@ -30,6 +30,8 @@ func SetupDatabaseConnection() *gorm.DB {
 
 	db.AutoMigrate(
 		&model.User{},
+		&model.Family{},
+		&model.Member{},
 	)
 
 	return db

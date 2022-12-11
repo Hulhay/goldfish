@@ -11,7 +11,7 @@ import (
 )
 
 type authUC struct {
-	repo repository.UserRepository
+	userRepo repository.UserRepository
 }
 
 type Auth interface {
@@ -20,9 +20,9 @@ type Auth interface {
 	Logout(ctx context.Context, email string) error
 }
 
-func NewAuthUC(r repository.UserRepository) Auth {
+func NewAuthUC(ur repository.UserRepository) Auth {
 	return &authUC{
-		repo: r,
+		userRepo: ur,
 	}
 }
 
@@ -37,7 +37,7 @@ func (u *authUC) Register(ctx context.Context, params auth.RegisterRequest) erro
 		return err
 	}
 
-	user, _ = u.repo.GetUserByEmail(ctx, params.Email)
+	user, _ = u.userRepo.GetUserByEmail(ctx, params.Email)
 
 	if user != nil {
 		return errors.New("email is used")
@@ -56,7 +56,7 @@ func (u *authUC) Register(ctx context.Context, params auth.RegisterRequest) erro
 		IsLogin:  false,
 	}
 
-	err = u.repo.InsertUser(ctx, req)
+	err = u.userRepo.InsertUser(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (u *authUC) Login(ctx context.Context, params auth.LoginRequest) (*model.Us
 		return nil, err
 	}
 
-	user, err = u.repo.GetUserByEmail(ctx, params.Email)
+	user, err = u.userRepo.GetUserByEmail(ctx, params.Email)
 	if err != nil || user == nil {
 		return nil, errors.New("email not found")
 	}
@@ -85,12 +85,12 @@ func (u *authUC) Login(ctx context.Context, params auth.LoginRequest) (*model.Us
 		return nil, errors.New("wrong password")
 	}
 
-	err = u.repo.UpdateStatusLoginTrue(ctx, params.Email)
+	err = u.userRepo.UpdateStatusLoginTrue(ctx, params.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	user, _ = u.repo.GetUserByEmail(ctx, params.Email)
+	user, _ = u.userRepo.GetUserByEmail(ctx, params.Email)
 
 	return user, nil
 }
@@ -102,12 +102,12 @@ func (u *authUC) Logout(ctx context.Context, email string) error {
 		user *model.User
 	)
 
-	user, _ = u.repo.GetUserByEmail(ctx, email)
+	user, _ = u.userRepo.GetUserByEmail(ctx, email)
 	if !user.IsLogin {
 		return errors.New("you don't have permission. you need to login first")
 	}
 
-	err = u.repo.UpdateStatusLoginFalse(ctx, email)
+	err = u.userRepo.UpdateStatusLoginFalse(ctx, email)
 	if err != nil {
 		return err
 	}

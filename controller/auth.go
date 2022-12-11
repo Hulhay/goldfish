@@ -86,7 +86,6 @@ func (c *authController) Logout(ctx *gin.Context) {
 
 	var err error
 	email := ctx.GetString("email")
-	// fmt.Println("any :", email)
 	err = c.authUC.Logout(ctx, email)
 	if err != nil {
 		res := shared.BuildErrorResponse("Login Failed!", err.Error())

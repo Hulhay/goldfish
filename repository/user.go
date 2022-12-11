@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type repository struct {
+type userRepository struct {
 	qry *gorm.DB
 }
 
@@ -19,41 +19,41 @@ type UserRepository interface {
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
-	return &repository{
+	return &userRepository{
 		qry: db,
 	}
 }
 
-func (r *repository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user *model.User
 
-	if err := r.qry.Model(&user).Where("email = ?", email).First(&user).Error; err != nil {
+	if err := r.qry.Model(&user).Where("user_email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
 
 	return user, nil
 }
 
-func (r *repository) InsertUser(ctx context.Context, params *model.User) error {
+func (r *userRepository) InsertUser(ctx context.Context, params *model.User) error {
 	var user *model.User
 
 	if err := r.qry.Model(&user).Create(map[string]interface{}{
-		"name":     params.Name,
-		"email":    params.Email,
-		"password": params.Password,
-		"role":     params.Role,
-		"is_login": params.IsLogin,
+		"user_name":     params.Name,
+		"user_email":    params.Email,
+		"user_password": params.Password,
+		"user_role":     params.Role,
+		"user_is_login": params.IsLogin,
 	}).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *repository) UpdateStatusLoginTrue(ctx context.Context, email string) error {
+func (r *userRepository) UpdateStatusLoginTrue(ctx context.Context, email string) error {
 	var user *model.User
 
-	if err := r.qry.Model(&user).Where("email = ?", email).Updates(map[string]interface{}{
-		"is_login": true,
+	if err := r.qry.Model(&user).Where("user_email = ?", email).Updates(map[string]interface{}{
+		"user_is_login": true,
 	}).Error; err != nil {
 		return err
 	}
@@ -61,11 +61,11 @@ func (r *repository) UpdateStatusLoginTrue(ctx context.Context, email string) er
 	return nil
 }
 
-func (r *repository) UpdateStatusLoginFalse(ctx context.Context, email string) error {
+func (r *userRepository) UpdateStatusLoginFalse(ctx context.Context, email string) error {
 	var user *model.User
 
-	if err := r.qry.Model(&user).Where("email = ?", email).Updates(map[string]interface{}{
-		"is_login": false,
+	if err := r.qry.Model(&user).Where("user_email = ?", email).Updates(map[string]interface{}{
+		"user_is_login": false,
 	}).Error; err != nil {
 		return err
 	}
