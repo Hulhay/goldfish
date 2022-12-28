@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Hulhay/goldfish/shared"
 	"github.com/Hulhay/goldfish/usecase"
@@ -59,6 +60,12 @@ func (c *memberController) GetMember(ctx *gin.Context) {
 
 	params.MemberNIK = ctx.Query("member_nik")
 	params.FamilyNIK = ctx.Query("family_nik")
+	params.IsHead, err = strconv.ParseBool(ctx.Query("is_head"))
+	if err != nil {
+		res := shared.BuildErrorResponse("Failed!", err.Error())
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
 
 	response, err = c.memberUC.GetMember(ctx, params)
 	if err != nil {

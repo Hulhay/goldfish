@@ -56,6 +56,10 @@ func (r *memberRepository) GetMember(ctx context.Context, params member.GetMembe
 		db = db.Where("members.member_name LIKE ?", `%`+params.MemberName+`%`)
 	}
 
+	if params.IsHead {
+		db = db.Where("members.member_is_head = ?", params.IsHead)
+	}
+
 	if err := db.Find(&res).Error; err != nil {
 		return nil, err
 	}

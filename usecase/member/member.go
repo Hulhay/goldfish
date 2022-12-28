@@ -10,6 +10,7 @@ type GetMemberRequest struct {
 	MemberNIK  string `query:"member_nik"`
 	MemberName string `query:"member_name"`
 	FamilyNIK  string `query:"family_nik"`
+	IsHead     bool   `query:"is_head"`
 }
 
 type MemberListResponse struct {
@@ -28,6 +29,10 @@ func (c *GetMemberRequest) Validate() error {
 
 	if c.FamilyNIK != `` && !shared.IsNIKFormat(c.FamilyNIK) {
 		return errors.New("invalid nik")
+	}
+
+	if !c.IsHead {
+		return errors.New("filter not allowed")
 	}
 
 	return nil
