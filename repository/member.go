@@ -45,15 +45,15 @@ func (r *memberRepository) GetMember(ctx context.Context, params member.GetMembe
 	db := r.qry.Model(&model.Member{}).Select("*").Joins("JOIN families ON families.family_id = members.family_id")
 
 	if params.MemberNIK != `` {
-		db = db.Where("member_nik = ?", params.MemberNIK)
+		db = db.Where("members.member_nik = ?", params.MemberNIK)
 	}
 
 	if params.FamilyNIK != `` {
-		db = db.Where("family_nik = ?", params.MemberNIK)
+		db = db.Where("families.family_nik = ?", params.FamilyNIK)
 	}
 
 	if params.MemberName != `` {
-		db = db.Where("member_name LIKE ?", `%`+params.MemberName+`%`)
+		db = db.Where("members.member_name LIKE ?", `%`+params.MemberName+`%`)
 	}
 
 	if err := db.Find(&res).Error; err != nil {

@@ -58,6 +58,7 @@ func (c *memberController) GetMember(ctx *gin.Context) {
 	)
 
 	params.MemberNIK = ctx.Query("member_nik")
+	params.FamilyNIK = ctx.Query("family_nik")
 
 	response, err = c.memberUC.GetMember(ctx, params)
 	if err != nil {
