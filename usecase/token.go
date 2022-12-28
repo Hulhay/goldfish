@@ -34,7 +34,7 @@ func getSecretKey() string {
 func (u *jwtService) GenerateToken(ctx context.Context, user *model.User) (*token.ResultResponse, error) {
 
 	now := time.Now()
-	end := now.Add(time.Minute * 15)
+	end := now.Add(time.Minute * 60)
 	claims := &token.AccessCustomClaim{
 		ID:    user.ID,
 		Name:  user.Name,

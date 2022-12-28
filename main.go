@@ -61,6 +61,7 @@ func main() {
 	memberRoutes := r.Group("api/member")
 	{
 		memberRoutes.POST("", middleware.AuthorizeJWT(tokenUC), mc.InsertMember)
+		memberRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC), mc.GetMember)
 	}
 
 	r.Run()

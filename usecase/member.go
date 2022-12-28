@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/Hulhay/goldfish/model"
 	"github.com/Hulhay/goldfish/repository"
@@ -19,6 +18,7 @@ type memberUC struct {
 
 type Member interface {
 	InsertMember(ctx context.Context, params member.InsertMemberRequest) error
+	GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error)
 }
 
 func NewMemberUC(mr repository.MemberRepository, fu Family) Member {
@@ -67,7 +67,6 @@ func (u *memberUC) InsertMember(ctx context.Context, params member.InsertMemberR
 		if err != nil {
 			return err
 		}
-		fmt.Printf("memberExist.ID: %v\n", memberExist.ID)
 
 		err = u.familyUC.InsertFamily(ctx, family.InsertFamilyRequest{
 			FamilyID:           params.FamilyID,
@@ -80,4 +79,23 @@ func (u *memberUC) InsertMember(ctx context.Context, params member.InsertMemberR
 	}
 
 	return nil
+}
+
+func (u memberUC) GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error) {
+
+	var (
+		members []member.MemberListResponse
+		err     error
+	)
+
+	if err = params.Validate(); err != nil {
+		return nil, err
+	}
+
+	members, err = u.memberRepo.GetMember(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return members, nil
 }

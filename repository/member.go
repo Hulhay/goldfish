@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Hulhay/goldfish/model"
+	"github.com/Hulhay/goldfish/usecase/member"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +14,7 @@ type memberRepository struct {
 
 type MemberRepository interface {
 	InsertMember(ctx context.Context, params *model.Member) error
+	GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error)
 	GetMemberByFamilyID(ctx context.Context, familyID string) (*model.Member, error)
 	GetMemberByMemberNIK(ctx context.Context, memberNIK string) (*model.Member, error)
 }
@@ -35,6 +37,30 @@ func (r *memberRepository) InsertMember(ctx context.Context, params *model.Membe
 		return err
 	}
 	return nil
+}
+
+func (r *memberRepository) GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error) {
+	var res []member.MemberListResponse
+
+	db := r.qry.Model(&model.Member{}).Select("*").Joins("JOIN families ON families.family_id = members.family_id")
+
+	if params.MemberNIK != `` {
+		db = db.Where("member_nik = ?", params.MemberNIK)
+	}
+
+	if params.FamilyNIK != `` {
+		db = db.Where("family_nik = ?", params.MemberNIK)
+	}
+
+	if params.MemberName != `` {
+		db = db.Where("member_name LIKE ?", `%`+params.MemberName+`%`)
+	}
+
+	if err := db.Find(&res).Error; err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func (r *memberRepository) GetMemberByFamilyID(ctx context.Context, familyID string) (*model.Member, error) {

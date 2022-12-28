@@ -12,8 +12,7 @@ type InsertMemberRequest struct {
 	MemberName   string `json:"member_name"`
 	MemberIsHead bool   `json:"member_is_head"`
 	FamilyID     string `json:"family_id"`
-
-	FamilyNIK string `json:"family_nik"`
+	FamilyNIK    string `json:"family_nik"`
 }
 
 func (c *InsertMemberRequest) Validate() error {
