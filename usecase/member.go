@@ -20,6 +20,7 @@ type Member interface {
 	InsertMember(ctx context.Context, params member.InsertMemberRequest) error
 	GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error)
 	GetDetailMember(ctx context.Context, params member.GetMemberDetailRequest) (*member.MemberDetailResponse, error)
+	EditMember(ctx context.Context, params member.EditMemberRequest) error
 }
 
 func NewMemberUC(mr repository.MemberRepository, fu Family) Member {
@@ -118,6 +119,7 @@ func (u *memberUC) GetDetailMember(ctx context.Context, params member.GetMemberD
 	}
 
 	res := &member.MemberDetailResponse{
+		MemberID:     memberData[0].MemberID,
 		MemberNIK:    memberData[0].MemberNIK,
 		MemberName:   memberData[0].MemberName,
 		FamilyNIK:    memberData[0].FamilyNIK,
@@ -126,4 +128,32 @@ func (u *memberUC) GetDetailMember(ctx context.Context, params member.GetMemberD
 	}
 
 	return res, nil
+}
+
+func (u *memberUC) EditMember(ctx context.Context, params member.EditMemberRequest) error {
+
+	var (
+		err         error
+		memberExist *model.Member
+	)
+
+	if err = params.Validate(); err != nil {
+		return err
+	}
+
+	memberExist, err = u.memberRepo.GetMemberByMemberID(ctx, params.MemberID)
+	if err != nil || memberExist == nil {
+		return errors.New("member_id not found")
+	}
+
+	err = u.memberRepo.EditMemberByMemberID(ctx, member.EditMemberRequest{
+		MemberID:   params.MemberID,
+		MemberNIK:  params.MemberNIK,
+		MemberName: params.MemberName,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

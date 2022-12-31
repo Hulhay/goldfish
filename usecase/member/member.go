@@ -14,6 +14,7 @@ type GetMemberRequest struct {
 }
 
 type MemberListResponse struct {
+	MemberID     int    `json:"member_id"`
 	MemberNIK    string `json:"member_nik"`
 	MemberName   string `json:"member_name"`
 	FamilyNIK    string `json:"family_nik"`

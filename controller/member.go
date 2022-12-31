@@ -18,6 +18,7 @@ type MemberContoller interface {
 	InsertMember(ctx *gin.Context)
 	GetMember(ctx *gin.Context)
 	GetDetailMember(ctx *gin.Context)
+	EditMember(ctx *gin.Context)
 }
 
 func NewMemberController(memberUC usecase.Member) MemberContoller {
@@ -61,11 +62,14 @@ func (c *memberController) GetMember(ctx *gin.Context) {
 
 	params.MemberNIK = ctx.Query("member_nik")
 	params.FamilyNIK = ctx.Query("family_nik")
-	params.IsHead, err = strconv.ParseBool(ctx.Query("is_head"))
-	if err != nil {
-		res := shared.BuildErrorResponse("Failed!", "malformat request")
-		ctx.JSON(http.StatusBadRequest, res)
-		return
+	isHead := ctx.Query("is_head")
+	if isHead != `` {
+		params.IsHead, err = strconv.ParseBool(isHead)
+		if err != nil {
+			res := shared.BuildErrorResponse("Failed!", "malformat request")
+			ctx.JSON(http.StatusBadRequest, res)
+			return
+		}
 	}
 
 	response, err = c.memberUC.GetMember(ctx, params)
@@ -97,5 +101,36 @@ func (c *memberController) GetDetailMember(ctx *gin.Context) {
 	}
 
 	res := shared.BuildResponse("Success!", response)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *memberController) EditMember(ctx *gin.Context) {
+	var (
+		params member.EditMemberRequest
+		err    error
+	)
+
+	params.MemberID, err = strconv.Atoi(ctx.Param("member-id"))
+	if err != nil {
+		res := shared.BuildErrorResponse("Failed!", "malformat request")
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	err = ctx.ShouldBind(&params)
+	if err != nil {
+		res := shared.BuildErrorResponse("Failed to process request", err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	err = c.memberUC.EditMember(ctx, params)
+	if err != nil {
+		res := shared.BuildErrorResponse("Failed!", err.Error())
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := shared.BuildResponse("Success!", nil)
 	ctx.JSON(http.StatusOK, res)
 }

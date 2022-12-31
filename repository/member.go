@@ -17,6 +17,8 @@ type MemberRepository interface {
 	GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error)
 	GetMemberByFamilyID(ctx context.Context, familyID string) (*model.Member, error)
 	GetMemberByMemberNIK(ctx context.Context, memberNIK string) (*model.Member, error)
+	GetMemberByMemberID(ctx context.Context, memberID int) (*model.Member, error)
+	EditMemberByMemberID(ctx context.Context, params member.EditMemberRequest) error
 }
 
 func NewMemberRepository(db *gorm.DB) MemberRepository {
@@ -85,4 +87,26 @@ func (r *memberRepository) GetMemberByMemberNIK(ctx context.Context, memberNIK s
 	}
 
 	return member, nil
+}
+
+func (r *memberRepository) GetMemberByMemberID(ctx context.Context, memberID int) (*model.Member, error) {
+	var member *model.Member
+
+	if err := r.qry.Model(&member).Where("member_id = ?", memberID).First(&member).Error; err != nil {
+		return nil, err
+	}
+
+	return member, nil
+}
+
+func (r *memberRepository) EditMemberByMemberID(ctx context.Context, params member.EditMemberRequest) error {
+	var member *model.Member
+
+	if err := r.qry.Model(&member).Where("member_id = ?", params.MemberID).Updates(map[string]interface{}{
+		"member_nik":  params.MemberNIK,
+		"member_name": params.MemberName,
+	}).Error; err != nil {
+		return err
+	}
+	return nil
 }

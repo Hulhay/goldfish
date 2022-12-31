@@ -63,6 +63,7 @@ func main() {
 		memberRoutes.POST("", middleware.AuthorizeJWT(tokenUC), mc.InsertMember)
 		memberRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC), mc.GetMember)
 		memberRoutes.GET("/detail", middleware.AuthorizeJWT(tokenUC), mc.GetDetailMember)
+		memberRoutes.PATCH("/:member-id", middleware.AuthorizeJWT(tokenUC), mc.EditMember)
 	}
 
 	r.Run()
