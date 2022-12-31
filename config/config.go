@@ -39,6 +39,7 @@ func SetupDatabaseConnection() *gorm.DB {
 		&model.User{},
 		&model.Family{},
 		&model.Member{},
+		&model.Category{},
 	)
 
 	return db

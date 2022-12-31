@@ -16,18 +16,21 @@ import (
 var (
 	db *gorm.DB = config.SetupDatabaseConnection()
 
-	userRepo   repository.UserRepository   = repository.NewUserRepository(db)
-	memberRepo repository.MemberRepository = repository.NewMemberRepository(db)
-	familyRepo repository.FamilyRepository = repository.NewFamilyRepository(db)
+	userRepo     repository.UserRepository     = repository.NewUserRepository(db)
+	memberRepo   repository.MemberRepository   = repository.NewMemberRepository(db)
+	familyRepo   repository.FamilyRepository   = repository.NewFamilyRepository(db)
+	categoryRepo repository.CategoryRepository = repository.NewCategoryRepository(db)
 
-	tokenUC  usecase.Token  = usecase.NewTokenUc()
-	authUC   usecase.Auth   = usecase.NewAuthUC(userRepo)
-	familyUC usecase.Family = usecase.NewFamilyUC(familyRepo)
-	memberUC usecase.Member = usecase.NewMemberUC(memberRepo, familyUC)
+	tokenUC      usecase.Token    = usecase.NewTokenUc()
+	authUC       usecase.Auth     = usecase.NewAuthUC(userRepo)
+	familyUC     usecase.Family   = usecase.NewFamilyUC(familyRepo)
+	memberUC     usecase.Member   = usecase.NewMemberUC(memberRepo, familyUC)
+	controllerUC usecase.Category = usecase.NewCategoryUC(categoryRepo)
 
-	ac controller.AuthController   = controller.NewAuthController(authUC, tokenUC)
-	hc controller.HealthController = controller.NewHealthController()
-	mc controller.MemberContoller  = controller.NewMemberController(memberUC)
+	ac controller.AuthController     = controller.NewAuthController(authUC, tokenUC)
+	hc controller.HealthController   = controller.NewHealthController()
+	mc controller.MemberContoller    = controller.NewMemberController(memberUC)
+	cc controller.CategoryController = controller.NewCategoryController(controllerUC)
 )
 
 func main() {
@@ -64,6 +67,12 @@ func main() {
 		memberRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC), mc.GetMember)
 		memberRoutes.GET("/detail", middleware.AuthorizeJWT(tokenUC), mc.GetDetailMember)
 		memberRoutes.PATCH("/:member-id", middleware.AuthorizeJWT(tokenUC), mc.EditMember)
+	}
+
+	categoryRoutes := r.Group("api/category")
+	{
+		categoryRoutes.POST("", middleware.AuthorizeJWT(tokenUC), cc.InsertCategory)
+		categoryRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC), cc.GetListCategory)
 	}
 
 	r.Run()
