@@ -31,9 +31,5 @@ func (c *GetMemberRequest) Validate() error {
 		return errors.New("invalid nik")
 	}
 
-	if !c.IsHead {
-		return errors.New("filter not allowed")
-	}
-
 	return nil
 }

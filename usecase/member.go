@@ -19,6 +19,7 @@ type memberUC struct {
 type Member interface {
 	InsertMember(ctx context.Context, params member.InsertMemberRequest) error
 	GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error)
+	GetDetailMember(ctx context.Context, params member.GetMemberDetailRequest) (*member.MemberDetailResponse, error)
 }
 
 func NewMemberUC(mr repository.MemberRepository, fu Family) Member {
@@ -81,7 +82,7 @@ func (u *memberUC) InsertMember(ctx context.Context, params member.InsertMemberR
 	return nil
 }
 
-func (u memberUC) GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error) {
+func (u *memberUC) GetMember(ctx context.Context, params member.GetMemberRequest) ([]member.MemberListResponse, error) {
 
 	var (
 		members []member.MemberListResponse
@@ -98,4 +99,31 @@ func (u memberUC) GetMember(ctx context.Context, params member.GetMemberRequest)
 	}
 
 	return members, nil
+}
+
+func (u *memberUC) GetDetailMember(ctx context.Context, params member.GetMemberDetailRequest) (*member.MemberDetailResponse, error) {
+
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
+	memberData, err := u.memberRepo.GetMember(ctx, member.GetMemberRequest{
+		MemberNIK: params.MemberNIK,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(memberData) == 0 || memberData == nil {
+		return nil, errors.New("member not found")
+	}
+
+	res := &member.MemberDetailResponse{
+		MemberNIK:    memberData[0].MemberNIK,
+		MemberName:   memberData[0].MemberName,
+		FamilyNIK:    memberData[0].FamilyNIK,
+		FamilyID:     memberData[0].FamilyID,
+		MemberIsHead: memberData[0].MemberIsHead,
+	}
+
+	return res, nil
 }

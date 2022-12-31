@@ -62,6 +62,7 @@ func main() {
 	{
 		memberRoutes.POST("", middleware.AuthorizeJWT(tokenUC), mc.InsertMember)
 		memberRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC), mc.GetMember)
+		memberRoutes.GET("/detail", middleware.AuthorizeJWT(tokenUC), mc.GetDetailMember)
 	}
 
 	r.Run()

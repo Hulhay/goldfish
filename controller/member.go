@@ -17,6 +17,7 @@ type memberController struct {
 type MemberContoller interface {
 	InsertMember(ctx *gin.Context)
 	GetMember(ctx *gin.Context)
+	GetDetailMember(ctx *gin.Context)
 }
 
 func NewMemberController(memberUC usecase.Member) MemberContoller {
@@ -62,12 +63,33 @@ func (c *memberController) GetMember(ctx *gin.Context) {
 	params.FamilyNIK = ctx.Query("family_nik")
 	params.IsHead, err = strconv.ParseBool(ctx.Query("is_head"))
 	if err != nil {
-		res := shared.BuildErrorResponse("Failed!", err.Error())
+		res := shared.BuildErrorResponse("Failed!", "malformat request")
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	response, err = c.memberUC.GetMember(ctx, params)
+	if err != nil {
+		res := shared.BuildErrorResponse("Failed!", err.Error())
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := shared.BuildResponse("Success!", response)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *memberController) GetDetailMember(ctx *gin.Context) {
+
+	var (
+		params   member.GetMemberDetailRequest
+		response *member.MemberDetailResponse
+		err      error
+	)
+
+	params.MemberNIK = ctx.Query("member_nik")
+
+	response, err = c.memberUC.GetDetailMember(ctx, params)
 	if err != nil {
 		res := shared.BuildErrorResponse("Failed!", err.Error())
 		ctx.JSON(http.StatusBadRequest, res)
