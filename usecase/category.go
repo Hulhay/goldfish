@@ -6,6 +6,7 @@ import (
 
 	"github.com/Hulhay/goldfish/model"
 	"github.com/Hulhay/goldfish/repository"
+	"github.com/Hulhay/goldfish/shared"
 	"github.com/Hulhay/goldfish/usecase/category"
 )
 
@@ -41,8 +42,11 @@ func (u *categoryUC) InsertCategory(ctx context.Context, params category.InsertC
 		return errors.New("category exist")
 	}
 
+	categoryValue := shared.CreateValue(params.CategoryName)
+
 	req := &model.Category{
-		CategoryName: params.CategoryName,
+		CategoryName:  params.CategoryName,
+		CategoryValue: categoryValue,
 	}
 
 	err = u.categoryRepo.InsertCategory(ctx, req)

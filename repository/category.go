@@ -27,7 +27,8 @@ func (r *categoryRepository) InsertCategory(ctx context.Context, params *model.C
 	var category *model.Category
 
 	if err := r.qry.Model(&category).Create(map[string]interface{}{
-		"category_name": params.CategoryName,
+		"category_name":  params.CategoryName,
+		"category_value": params.CategoryValue,
 	}).Error; err != nil {
 		return err
 	}
