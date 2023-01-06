@@ -83,6 +83,7 @@ func main() {
 	transactionRoutes := r.Group("api/transaction")
 	{
 		transactionRoutes.POST("/new", middleware.AuthorizeJWT(tokenUC), tc.CreateTransaction)
+		transactionRoutes.GET("/history", middleware.AuthorizeJWT(tokenUC), tc.GetHistoryTransaction)
 	}
 
 	r.Run()

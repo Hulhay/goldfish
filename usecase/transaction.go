@@ -21,6 +21,7 @@ type transactionUC struct {
 
 type Transaction interface {
 	CreateTransaction(ctx context.Context, params transaction.CreateTransactionRequest) error
+	GetHistoryTransaction(ctx context.Context, params transaction.GetHistoryTransactionRequest) ([]transaction.GetHistoryTransactionResponse, error)
 }
 
 func NewTransactionUC(
@@ -100,4 +101,44 @@ func (u *transactionUC) CreateTransaction(ctx context.Context, params transactio
 	}
 
 	return nil
+}
+
+func (u *transactionUC) GetHistoryTransaction(ctx context.Context, params transaction.GetHistoryTransactionRequest) ([]transaction.GetHistoryTransactionResponse, error) {
+
+	var (
+		err             error
+		transactionData []model.Transaction
+		category        *model.Category
+		res             []transaction.GetHistoryTransactionResponse
+	)
+
+	if err = params.Validate(); err != nil {
+		return nil, err
+	}
+
+	transactionData, err = u.transactionRepo.GetHistoryTransaction(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	if transactionData == nil {
+		return res, nil
+	}
+
+	for _, trx := range transactionData {
+
+		category, err = u.categoryRepo.GetCategoryByCategoryValue(ctx, trx.TrxCategory)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, transaction.GetHistoryTransactionResponse{
+			TrxID:        int(trx.ID),
+			TrxCategory:  category.CategoryName,
+			TrxAmount:    trx.TrxAmount,
+			TrxType:      trx.TrxType,
+			TrxCreatedAt: trx.TrxCreatedAt,
+		})
+	}
+
+	return res, nil
 }
