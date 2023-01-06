@@ -40,6 +40,8 @@ func SetupDatabaseConnection() *gorm.DB {
 		&model.Family{},
 		&model.Member{},
 		&model.Category{},
+		&model.Wallet{},
+		&model.Transaction{},
 	)
 
 	return db

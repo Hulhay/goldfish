@@ -15,6 +15,7 @@ type CategoryRepository interface {
 	InsertCategory(ctx context.Context, params *model.Category) error
 	GetCategoryByCategoryName(ctx context.Context, categoryName string) (*model.Category, error)
 	GetListCategory(ctx context.Context) ([]model.Category, error)
+	GetCategoryByCategoryValue(ctx context.Context, categoryValue string) (*model.Category, error)
 }
 
 func NewCategoryRepository(db *gorm.DB) CategoryRepository {
@@ -56,4 +57,14 @@ func (r *categoryRepository) GetListCategory(ctx context.Context) ([]model.Categ
 	}
 
 	return res, nil
+}
+
+func (r *categoryRepository) GetCategoryByCategoryValue(ctx context.Context, categoryValue string) (*model.Category, error) {
+	var category *model.Category
+
+	if err := r.qry.Model(&category).Where("category_value = ?", categoryValue).First(&category).Error; err != nil {
+		return nil, err
+	}
+
+	return category, nil
 }

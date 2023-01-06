@@ -1,8 +1,13 @@
 package shared
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
+
+var nonAlphanumericRegex = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
 
 func CreateValue(name string) string {
-	val := strings.ReplaceAll(name, " ", "_")
+	val := nonAlphanumericRegex.ReplaceAllString(name, "_")
 	return strings.ToUpper(val)
 }
