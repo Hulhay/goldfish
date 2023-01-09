@@ -37,8 +37,9 @@ func (u *jwtService) GenerateToken(ctx context.Context, user *model.User) (*toke
 	end := now.Add(time.Minute * 60)
 	claims := &token.AccessCustomClaim{
 		ID:    user.ID,
-		Name:  user.Name,
-		Email: user.Email,
+		Name:  user.UserName,
+		Email: user.UserEmail,
+		Role:  user.UserRole,
 		StandardClaims: jwt.StandardClaims{
 			IssuedAt:  now.Unix(),
 			ExpiresAt: end.Unix(),
@@ -52,8 +53,9 @@ func (u *jwtService) GenerateToken(ctx context.Context, user *model.User) (*toke
 	}
 
 	res := &token.ResultResponse{
-		Name:      user.Name,
+		Name:      user.UserName,
 		Token:     tokenStr,
+		Role:      user.UserRole,
 		ExpiredAt: end.Format(time.RFC3339),
 	}
 

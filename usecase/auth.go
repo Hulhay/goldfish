@@ -37,23 +37,24 @@ func (u *authUC) Register(ctx context.Context, params auth.RegisterRequest) erro
 		return err
 	}
 
-	user, _ = u.userRepo.GetUserByEmail(ctx, params.Email)
+	user, _ = u.userRepo.GetUserByEmail(ctx, params.UserEmail)
 
 	if user != nil {
 		return errors.New("email is used")
 	}
 
-	encryptedPassword, err = shared.EncryptPassword(params.Password)
+	encryptedPassword, err = shared.EncryptPassword(params.UserPassword)
 	if err != nil {
 		return err
 	}
 
 	req := &model.User{
-		Name:     params.Name,
-		Email:    params.Email,
-		Password: encryptedPassword,
-		Role:     params.Role,
-		IsLogin:  false,
+		UserName:     params.UserName,
+		UserUsername: params.UserUsername,
+		UserEmail:    params.UserEmail,
+		UserPassword: encryptedPassword,
+		UserRole:     params.UserRole,
+		UserIsLogin:  false,
 	}
 
 	err = u.userRepo.InsertUser(ctx, req)
@@ -80,7 +81,7 @@ func (u *authUC) Login(ctx context.Context, params auth.LoginRequest) (*model.Us
 		return nil, errors.New("email not found")
 	}
 
-	err = shared.CheckPassword(params.Password, user.Password)
+	err = shared.CheckPassword(params.Password, user.UserPassword)
 	if err != nil {
 		return nil, errors.New("wrong password")
 	}
@@ -103,7 +104,7 @@ func (u *authUC) Logout(ctx context.Context, email string) error {
 	)
 
 	user, _ = u.userRepo.GetUserByEmail(ctx, email)
-	if !user.IsLogin {
+	if !user.UserIsLogin {
 		return errors.New("you don't have permission. you need to login first")
 	}
 

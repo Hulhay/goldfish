@@ -38,11 +38,12 @@ func (r *userRepository) InsertUser(ctx context.Context, params *model.User) err
 	var user *model.User
 
 	if err := r.qry.Model(&user).Create(map[string]interface{}{
-		"user_name":     params.Name,
-		"user_email":    params.Email,
-		"user_password": params.Password,
-		"user_role":     params.Role,
-		"user_is_login": params.IsLogin,
+		"user_name":     params.UserName,
+		"user_username": params.UserUsername,
+		"user_email":    params.UserEmail,
+		"user_password": params.UserPassword,
+		"user_role":     params.UserRole,
+		"user_is_login": params.UserIsLogin,
 	}).Error; err != nil {
 		return err
 	}
