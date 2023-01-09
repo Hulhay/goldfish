@@ -30,12 +30,14 @@ var (
 	memberUC      usecase.Member      = usecase.NewMemberUC(memberRepo, familyUC)
 	controllerUC  usecase.Category    = usecase.NewCategoryUC(categoryRepo)
 	transactionUC usecase.Transaction = usecase.NewTransactionUC(transactionRepo, familyRepo, walletRepo, categoryRepo, timeRepo)
+	profileUC     usecase.Profile     = usecase.NewProfileUC(userRepo)
 
 	ac controller.AuthController        = controller.NewAuthController(authUC, tokenUC)
 	hc controller.HealthController      = controller.NewHealthController()
 	mc controller.MemberContoller       = controller.NewMemberController(memberUC)
 	cc controller.CategoryController    = controller.NewCategoryController(controllerUC)
 	tc controller.TransactionController = controller.NewTransactionRepository(transactionUC)
+	pc controller.ProfileController     = controller.NewProfileController(profileUC)
 )
 
 func main() {
@@ -84,6 +86,11 @@ func main() {
 	{
 		transactionRoutes.POST("/new", middleware.AuthorizeJWT(tokenUC), tc.CreateTransaction)
 		transactionRoutes.GET("/history", middleware.AuthorizeJWT(tokenUC), tc.GetHistoryTransaction)
+	}
+
+	profileAuth := r.Group("api/profile")
+	{
+		profileAuth.GET("/me", middleware.AuthorizeJWT(tokenUC), pc.GetProfile)
 	}
 
 	r.Run()
