@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Hulhay/goldfish/model"
 	"github.com/Hulhay/goldfish/shared"
 	validation "github.com/go-ozzo/ozzo-validation"
 )
@@ -51,6 +52,18 @@ func (c *GetHistoryTransactionRequest) Validate() error {
 
 	if (endDate.Sub(startDate).Hours() / 24) >= 31 {
 		return errors.New("range date maximum 31 days")
+	}
+
+	if c.Type != `` {
+		if !model.IsValidTrxType[c.Type] {
+			return errors.New("invalid transaction type")
+		}
+	}
+
+	if c.Category != `` {
+		if !model.IsValidCategory[c.Category] {
+			return errors.New("invalid category")
+		}
 	}
 
 	c.StartDateTime = shared.StartDateString(c.StartDate)

@@ -97,7 +97,7 @@ func (u *transactionUC) CreateTransaction(ctx context.Context, params transactio
 		WalletUpdatedAt: now,
 	})
 	if err != nil {
-		return err
+		return errors.New("failed to update wallet")
 	}
 
 	return nil
