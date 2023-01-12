@@ -20,6 +20,7 @@ type AuthController interface {
 	Login(ctx *gin.Context)
 	Register(ctx *gin.Context)
 	Logout(ctx *gin.Context)
+	ChangePassword(ctx *gin.Context)
 }
 
 func NewAuthController(authUC usecase.Auth, tokenUC usecase.Token) AuthController {
@@ -88,11 +89,36 @@ func (c *authController) Logout(ctx *gin.Context) {
 	email := ctx.GetString("email")
 	err = c.authUC.Logout(ctx, email)
 	if err != nil {
-		res := shared.BuildErrorResponse("Login Failed!", err.Error())
+		res := shared.BuildErrorResponse("Logout Failed!", err.Error())
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	res := shared.BuildResponse("Logout Success!", nil)
 	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *authController) ChangePassword(ctx *gin.Context) {
+
+	var (
+		err    error
+		params auth.ChangePasswordRequest
+	)
+	params.UserEmail = ctx.GetString("email")
+	err = ctx.ShouldBind(&params)
+	if err != nil {
+		res := shared.BuildErrorResponse("Failed to process request", err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	err = c.authUC.ChangePassword(ctx, &params)
+	if err != nil {
+		res := shared.BuildErrorResponse("Change Password Failed!", err.Error())
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := shared.BuildResponse("Change Password Success!", nil)
+	ctx.JSON(http.StatusOK, res)
+
 }

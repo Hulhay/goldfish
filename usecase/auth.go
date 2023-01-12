@@ -18,6 +18,7 @@ type Auth interface {
 	Register(ctx context.Context, params auth.RegisterRequest) error
 	Login(ctx context.Context, params auth.LoginRequest) (*model.User, error)
 	Logout(ctx context.Context, email string) error
+	ChangePassword(ctx context.Context, params *auth.ChangePasswordRequest) error
 }
 
 func NewAuthUC(ur repository.UserRepository) Auth {
@@ -109,6 +110,50 @@ func (u *authUC) Logout(ctx context.Context, email string) error {
 	}
 
 	err = u.userRepo.UpdateStatusLoginFalse(ctx, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *authUC) ChangePassword(ctx context.Context, params *auth.ChangePasswordRequest) error {
+
+	var (
+		err  error
+		user *model.User
+	)
+
+	if err = params.Validate(); err != nil {
+		return err
+	}
+
+	user, err = u.userRepo.GetUserByEmail(ctx, params.UserEmail)
+	if err != nil || user == nil {
+		return errors.New("email not found")
+	}
+
+	err = shared.CheckPassword(params.UserOldPassword, user.UserPassword)
+	if err != nil {
+		return errors.New("wrong old password")
+	}
+
+	err = shared.CheckPassword(params.UserNewPassword, user.UserPassword)
+	if err == nil {
+		return errors.New("new password has been used")
+	}
+
+	encryptedNewPassword, err := shared.EncryptPassword(params.UserNewPassword)
+	if err != nil {
+		return err
+	}
+
+	req := &auth.ChangePasswordRequest{
+		UserID:          user.ID,
+		UserNewPassword: encryptedNewPassword,
+	}
+
+	err = u.userRepo.UpdatePassword(ctx, req)
 	if err != nil {
 		return err
 	}

@@ -66,6 +66,7 @@ func main() {
 		authRoutes.POST("/register", ac.Register)
 		authRoutes.POST("/login", ac.Login)
 		authRoutes.POST("/logout", middleware.AuthorizeJWT(tokenUC), ac.Logout)
+		authRoutes.POST("/change-password", middleware.AuthorizeJWT(tokenUC), ac.ChangePassword)
 	}
 
 	memberRoutes := r.Group("api/member")
@@ -88,9 +89,9 @@ func main() {
 		transactionRoutes.GET("/history", middleware.AuthorizeJWT(tokenUC), tc.GetHistoryTransaction)
 	}
 
-	profileAuth := r.Group("api/profile")
+	profileRoutes := r.Group("api/profile")
 	{
-		profileAuth.GET("/me", middleware.AuthorizeJWT(tokenUC), pc.GetProfile)
+		profileRoutes.GET("/me", middleware.AuthorizeJWT(tokenUC), pc.GetProfile)
 	}
 
 	r.Run()
