@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthorizeJWT(u usecase.Token) gin.HandlerFunc {
+func AuthorizeJWT(u usecase.Token, accountRole []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		authHeader := c.GetHeader("Authorization")
@@ -39,6 +39,21 @@ func AuthorizeJWT(u usecase.Token) gin.HandlerFunc {
 		if token.Valid {
 			claims := token.Claims.(jwt.MapClaims)
 			c.Set("email", claims["email"])
+			c.Set("role", claims["role"])
+
+			if len(accountRole) > 0 {
+				isValidRole := false
+				for _, val := range accountRole {
+					if strings.EqualFold(strings.ToLower(claims["role"].(string)), strings.ToLower(val)) {
+						isValidRole = true
+					}
+				}
+
+				if !isValidRole {
+					response := shared.BuildErrorResponse("Failed", "Unauthorize")
+					c.AbortWithStatusJSON(http.StatusUnauthorized, response)
+				}
+			}
 		} else {
 			log.Println(err)
 			response := shared.BuildErrorResponse("Token is not valid", err.Error())

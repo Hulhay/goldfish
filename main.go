@@ -6,6 +6,7 @@ import (
 	"github.com/Hulhay/goldfish/config"
 	"github.com/Hulhay/goldfish/controller"
 	"github.com/Hulhay/goldfish/middleware"
+	"github.com/Hulhay/goldfish/model"
 	"github.com/Hulhay/goldfish/repository"
 	"github.com/Hulhay/goldfish/usecase"
 	"github.com/gin-contrib/cors"
@@ -65,33 +66,33 @@ func main() {
 	{
 		authRoutes.POST("/register", ac.Register)
 		authRoutes.POST("/login", ac.Login)
-		authRoutes.POST("/logout", middleware.AuthorizeJWT(tokenUC), ac.Logout)
-		authRoutes.POST("/change-password", middleware.AuthorizeJWT(tokenUC), ac.ChangePassword)
+		authRoutes.POST("/logout", middleware.AuthorizeJWT(tokenUC, []string{}), ac.Logout)
+		authRoutes.POST("/change-password", middleware.AuthorizeJWT(tokenUC, []string{}), ac.ChangePassword)
 	}
 
 	memberRoutes := r.Group("api/member")
 	{
-		memberRoutes.POST("", middleware.AuthorizeJWT(tokenUC), mc.InsertMember)
-		memberRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC), mc.GetMember)
-		memberRoutes.GET("/detail", middleware.AuthorizeJWT(tokenUC), mc.GetDetailMember)
-		memberRoutes.PATCH("/:member-id", middleware.AuthorizeJWT(tokenUC), mc.EditMember)
+		memberRoutes.POST("", middleware.AuthorizeJWT(tokenUC, []string{}), mc.InsertMember)
+		memberRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC, []string{}), mc.GetMember)
+		memberRoutes.GET("/detail", middleware.AuthorizeJWT(tokenUC, []string{}), mc.GetDetailMember)
+		memberRoutes.PATCH("/:member-id", middleware.AuthorizeJWT(tokenUC, []string{}), mc.EditMember)
 	}
 
 	categoryRoutes := r.Group("api/category")
 	{
-		categoryRoutes.POST("", middleware.AuthorizeJWT(tokenUC), cc.InsertCategory)
-		categoryRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC), cc.GetListCategory)
+		categoryRoutes.POST("", middleware.AuthorizeJWT(tokenUC, []string{model.SUPER_USER}), cc.InsertCategory)
+		categoryRoutes.GET("/list", middleware.AuthorizeJWT(tokenUC, []string{}), cc.GetListCategory)
 	}
 
 	transactionRoutes := r.Group("api/transaction")
 	{
-		transactionRoutes.POST("/new", middleware.AuthorizeJWT(tokenUC), tc.CreateTransaction)
-		transactionRoutes.GET("/history", middleware.AuthorizeJWT(tokenUC), tc.GetHistoryTransaction)
+		transactionRoutes.POST("/new", middleware.AuthorizeJWT(tokenUC, []string{}), tc.CreateTransaction)
+		transactionRoutes.GET("/history", middleware.AuthorizeJWT(tokenUC, []string{}), tc.GetHistoryTransaction)
 	}
 
 	profileRoutes := r.Group("api/profile")
 	{
-		profileRoutes.GET("/me", middleware.AuthorizeJWT(tokenUC), pc.GetProfile)
+		profileRoutes.GET("/me", middleware.AuthorizeJWT(tokenUC, []string{}), pc.GetProfile)
 	}
 
 	r.Run()
